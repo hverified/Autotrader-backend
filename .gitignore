@@ -1,0 +1,57 @@
+# ## Byte-compiled / optimized files ##
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ## Virtual Environment ##
+# A good practice is to name your virtual environment `venv` or `.venv`
+venv/
+.venv/
+env/
+.env/
+virtualenv/
+
+# ## Distribution / packaging ##
+build/
+dist/
+*.egg-info/
+*.egg
+sdist/
+wheelhouse/
+
+# ## PyInstaller ##
+# PyInstaller builds
+*.spec
+
+# ## Testing ##
+.pytest_cache/
+.tox/
+htmlcov/
+*.cover
+nosetests.xml
+coverage.xml
+pytest-report.html
+run.py
+# ## IDE / Editor Files ##
+# Visual Studio Code
+.vscode/
+# PyCharm
+.idea/
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ## OS-specific files ##
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+
+# ## Sensitive Information ##
+# Environment variables
+.env
+.env.*
+!*.env.example
+
+# ## Jupyter Notebook ##
+.ipynb_checkpoints

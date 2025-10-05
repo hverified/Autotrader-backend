@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+motor
+pydantic
+requests
+beautifulsoup4
+pandas
+yfinance
+python-dotenv
