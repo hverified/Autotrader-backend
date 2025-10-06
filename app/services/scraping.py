@@ -4,6 +4,7 @@ from app.utils.logger import logger
 from app.config import settings
 from bs4 import BeautifulSoup
 
+
 def scrape_chartink():
     """
     Scrape Chartink screener via POST request with CSRF token and session.
@@ -13,10 +14,10 @@ def scrape_chartink():
 
     # Step 1: GET request to fetch CSRF token and cookies
     try:
-        get_resp = session.get(settings.CHARTINK_URL, headers={
-            "User-Agent": "Mozilla/5.0",
-            "Referer": settings.CHARTINK_URL
-        })
+        get_resp = session.get(
+            settings.CHARTINK_URL,
+            headers={"User-Agent": "Mozilla/5.0", "Referer": settings.CHARTINK_URL},
+        )
         if get_resp.status_code != 200:
             logger.error(f"Failed initial GET: {get_resp.status_code}")
             return []
@@ -35,22 +36,18 @@ def scrape_chartink():
         return []
 
     # Step 2: POST request to fetch screener data
-    payload = {
-        "scan_clause": settings.CHARTINK_SCAN_CLAUSE
-    }
+    payload = {"scan_clause": settings.CHARTINK_SCAN_CLAUSE}
 
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         "Referer": settings.CHARTINK_URL,
         "User-Agent": "Mozilla/5.0",
-        "X-CSRF-Token": csrf_token
+        "X-CSRF-Token": csrf_token,
     }
 
     try:
         post_resp = session.post(
-            "https://chartink.com/screener/process",
-            data=payload,
-            headers=headers
+            "https://chartink.com/screener/process", data=payload, headers=headers
         )
         if post_resp.status_code != 200:
             logger.error(f"Failed POST request: {post_resp.status_code}")
