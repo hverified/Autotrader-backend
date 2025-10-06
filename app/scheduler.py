@@ -1,58 +1,76 @@
 # backend/app/scheduler.py
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+
 from app.routers import trades
-from app.utils.logger import logger
 from app.services import trading
+from app.utils.logger import logger
+from app.utils.decorators import job_runner
+from app.config import settings
 
 
-async def scheduled_shortlist_job():
-    try:
-        await trades.shortlist_stocks(manual=False)
-        logger.info("Scheduled shortlist job completed at 5 PM")
-    except Exception as e:
-        logger.error(f"Error in scheduled_shortlist_job: {e}")
+@job_runner("Update Shortlist")
+async def run_update_shortlist():
+    await trades.update_shortlist()
 
 
-async def scheduled_buy_job():
-    try:
-        await trades.buy_shortlisted(manual=False)
-        logger.info("Scheduled buy job completed at 9:30 AM")
-    except Exception as e:
-        logger.error(f"Error in scheduled_buy_job: {e}")
+@job_runner("Buy Shortlisted")
+async def run_buy_shortlisted():
+    await trades.buy_shortlisted(manual=False)
+
+
+@job_runner("Mark EOD Positions to Sell")
+async def run_mark_to_sell_eod():
+    await trading.mark_to_sell_eod()
+
+
+@job_runner("Execute Next Day Sells")
+async def run_execute_sell_next_day():
+    await trading.execute_sell_next_day()
+
+
+JOBS = [
+    {
+        "id": "shortlist_job",
+        "func": run_update_shortlist,
+        "cron": settings.SHORTLIST_CRON,
+    },
+    # {
+    #     "id": "buy_job",
+    #     "func": run_buy_shortlisted,
+    #     "cron": settings.BUY_CRON,
+    # },
+    # {
+    #     "id": "eod_to_sell",
+    #     "func": run_mark_to_sell_eod,
+    #     "cron": settings.EOD_MARK_TO_SELL_CRON,
+    # },
+    # {
+    #     "id": "sell_next_day",
+    #     "func": run_execute_sell_next_day,
+    #     "cron": settings.EXECUTE_SELL_CRON,
+    # },
+]
 
 
 def start_scheduler():
-    """Start APScheduler with async jobs."""
-    scheduler = AsyncIOScheduler()
+    """Initializes and starts the APScheduler with jobs defined in the JOBS list."""
+    scheduler = AsyncIOScheduler(timezone="Asia/Kolkata")
 
-    # Scrape at 5 PM every weekday
-    scheduler.add_job(
-        scheduled_shortlist_job,
-        CronTrigger(day_of_week="mon-fri", hour=20, minute=22),
-        id="shortlist_job",
-    )
-
-    # Buy at 9:30 AM every weekday
-    scheduler.add_job(
-        scheduled_buy_job,
-        CronTrigger(day_of_week="mon-fri", hour=20, minute=51),
-        id="buy_job",
-    )
-
-    # 6 PM EOD check
-    scheduler.add_job(
-        trading.mark_to_sell_eod,
-        CronTrigger(day_of_week="mon-fri", hour=20, minute=12),
-        id="eod_to_sell",
-    )
-
-    # 9:16 AM next day execution
-    scheduler.add_job(
-        trading.execute_sell_next_day,
-        CronTrigger(day_of_week="mon-fri", hour=9, minute=16),
-        id="sell_next_day",
-    )
+    for job in JOBS:
+        hour, minute, day_of_week = job["cron"].split()
+        scheduler.add_job(
+            job["func"],
+            CronTrigger(
+                hour=hour,
+                minute=minute,
+                day_of_week=day_of_week if day_of_week != "*" else "mon-fri",
+            ),
+            id=job["id"],
+            name=job["id"],
+            replace_existing=True,
+        )
+        logger.info(f"Scheduled job '{job['id']}' with trigger: {job['cron']}.")
 
     scheduler.start()
-    logger.info("Scheduler started!")
+    logger.info("Scheduler started successfully!")

@@ -22,10 +22,6 @@ def serialize_mongo_doc(doc):
 
 @router.post("/update_shortlist")
 async def update_shortlist():
-    """
-    Scrape Chartink and store shortlisted stocks.
-    Should be called only at 5pm.
-    """
     try:
         stocks = scrape_chartink()
         if not stocks:
@@ -41,33 +37,25 @@ async def update_shortlist():
 
 
 @router.get("/get_stocks")
-async def get_stocks(
-    manual: bool = Query(
-        False, description="Return all stocks grouped by status if manual"
-    )
-):
+async def get_stocks():
     """
     Returns stocks stored in DB.
-    If manual=true, group stocks by status for frontend.
     """
     try:
         all_stocks = await trades_collection.find({}).to_list(length=None)
         all_stocks = [serialize_mongo_doc(s) for s in all_stocks]
 
-        if manual:
-            grouped = {
-                "shortlisted": [],
-                "bought": [],
-                "not_triggered": [],
-                "to_sell": [],
-                "sold": [],
-            }
-            for stock in all_stocks:
-                status = stock.get("status", "shortlisted")
-                grouped.setdefault(status, []).append(stock)
-            return grouped
-        else:
-            return {"count": len(all_stocks), "data": all_stocks}
+        grouped = {
+            "shortlisted": [],
+            "bought": [],
+            "not_triggered": [],
+            "to_sell": [],
+            "sold": [],
+        }
+        for stock in all_stocks:
+            status = stock.get("status", "shortlisted")
+            grouped.setdefault(status, []).append(stock)
+        return grouped
 
     except Exception as e:
         logger.error(f"Error in /get_stocks endpoint: {e}")

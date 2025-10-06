@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     BACKEND_HOST: str
     BACKEND_PORT: int
 
+    SHORTLIST_CRON: str
+    BUY_CRON: str
+    EOD_MARK_TO_SELL_CRON: str
+    EXECUTE_SELL_CRON: str
+
     class Config:
         env_file = ".env"
 
