@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import trades, market
+from app.routers import trades, market, logs
 from app.scheduler import start_scheduler
 from app.config import settings
 
@@ -28,6 +28,7 @@ app.add_middleware(
 
 app.include_router(trades.router, prefix="/trades", tags=["Trades"])
 app.include_router(market.router, prefix="/market", tags=["Market"])
+app.include_router(logs.router, prefix="/logs", tags=["Logs"])
 
 
 @app.get("/")
