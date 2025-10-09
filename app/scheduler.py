@@ -16,7 +16,7 @@ async def run_update_shortlist():
 
 @job_runner("Buy Shortlisted")
 async def run_buy_shortlisted():
-    await trades.buy_shortlisted(manual=False)
+    await trades.buy_shortlisted()
 
 
 @job_runner("Mark EOD Positions to Sell")
@@ -35,11 +35,11 @@ JOBS = [
         "func": run_update_shortlist,
         "cron": settings.SHORTLIST_CRON,
     },
-    # {
-    #     "id": "buy_job",
-    #     "func": run_buy_shortlisted,
-    #     "cron": settings.BUY_CRON,
-    # },
+    {
+        "id": "buy_job",
+        "func": run_buy_shortlisted,
+        "cron": settings.BUY_CRON,
+    },
     # {
     #     "id": "eod_to_sell",
     #     "func": run_mark_to_sell_eod,
@@ -55,7 +55,7 @@ JOBS = [
 
 def start_scheduler():
     """Initializes and starts the APScheduler with jobs defined in the JOBS list."""
-    scheduler = AsyncIOScheduler(timezone="Asia/Kolkata")
+    scheduler = AsyncIOScheduler()
 
     for job in JOBS:
         hour, minute, day_of_week = job["cron"].split()
