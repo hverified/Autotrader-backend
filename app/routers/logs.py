@@ -4,7 +4,7 @@ from typing import Optional
 
 from app.utils.logger import get_logs, clear_logs, LOG_FILE
 
-router = APIRouter(prefix="/logs", tags=["Logs"])
+router = APIRouter()
 
 
 @router.get("/")
