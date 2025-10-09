@@ -1,6 +1,7 @@
 # backend/app/scheduler.py
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from pytz import timezone
 
 from app.routers import trades
 from app.services import trading
@@ -35,11 +36,11 @@ JOBS = [
         "func": run_update_shortlist,
         "cron": settings.SHORTLIST_CRON,
     },
-    {
-        "id": "buy_job",
-        "func": run_buy_shortlisted,
-        "cron": settings.BUY_CRON,
-    },
+    # {
+    #     "id": "buy_job",
+    #     "func": run_buy_shortlisted,
+    #     "cron": settings.BUY_CRON,
+    # },
     # {
     #     "id": "eod_to_sell",
     #     "func": run_mark_to_sell_eod,
@@ -55,7 +56,9 @@ JOBS = [
 
 def start_scheduler():
     """Initializes and starts the APScheduler with jobs defined in the JOBS list."""
-    scheduler = AsyncIOScheduler()
+    # Set timezone to Asia/Kolkata
+    kolkata_tz = timezone("Asia/Kolkata")
+    scheduler = AsyncIOScheduler(timezone=kolkata_tz)
 
     for job in JOBS:
         hour, minute, day_of_week = job["cron"].split()
@@ -65,12 +68,15 @@ def start_scheduler():
                 hour=hour,
                 minute=minute,
                 day_of_week=day_of_week if day_of_week != "*" else "mon-fri",
+                timezone=kolkata_tz,
             ),
             id=job["id"],
             name=job["id"],
             replace_existing=True,
         )
-        logger.info(f"Scheduled job '{job['id']}' with trigger: {job['cron']}.")
+        logger.info(
+            f"Scheduled job '{job['id']}' with trigger: {job['cron']} (Asia/Kolkata)."
+        )
 
     scheduler.start()
-    logger.info("Scheduler started successfully!")
+    logger.info("Scheduler started successfully with Asia/Kolkata timezone!")
