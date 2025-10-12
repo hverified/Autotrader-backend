@@ -1,3 +1,4 @@
+# app/models/trade_model.py
 from pydantic import BaseModel
 from typing import Optional
 

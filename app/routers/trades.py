@@ -1,10 +1,10 @@
+# app/routers/trades.py
 from fastapi import APIRouter, Query, HTTPException
 from datetime import datetime, time
 from app.services.scraping import scrape_chartink
 from app.services.trading import (
     is_nifty_above_50ema,
     check_stock_above_50ema,
-    buy_stock,
     mark_to_sell_eod,
     execute_sell_next_day,
 )

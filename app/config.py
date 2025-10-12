@@ -1,3 +1,4 @@
+# app/config.py
 from pydantic_settings import BaseSettings
 
 
@@ -21,6 +22,10 @@ class Settings(BaseSettings):
     BUY_CRON: str
     EOD_MARK_TO_SELL_CRON: str
     EXECUTE_SELL_CRON: str
+
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     class Config:
         env_file = ".env"

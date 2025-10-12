@@ -74,9 +74,7 @@ def start_scheduler():
             name=job["id"],
             replace_existing=True,
         )
-        logger.info(
-            f"Scheduled job '{job['id']}' with trigger: {job['cron']} (Asia/Kolkata)."
-        )
+        logger.info(f"Scheduled job '{job['id']}' with trigger: {job['cron']}")
 
     scheduler.start()
-    logger.info("Scheduler started successfully with Asia/Kolkata timezone!")
+    logger.info("Scheduler started successfully!")
